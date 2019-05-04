@@ -1,6 +1,8 @@
 # Libraries
 import RPi.GPIO as GPIO
 import time
+import sys
+import Adafruit_DHT
 
 GPIO.setmode(GPIO.BCM)
 
@@ -9,6 +11,10 @@ DIST_TRIGGER = 23
 GPIO.setup(DIST_TRIGGER, GPIO.OUT)
 DIST_ECHO = 24
 GPIO.setup(DIST_ECHO, GPIO.IN)
+
+# Temp and Humidity sensor config
+temp_sensor = Adafruit_DHT.DHT11
+temp_pin = 4
 
 
 def distance():
@@ -40,6 +46,16 @@ def distance():
 
 if __name__ == '__main__':
     while True:
+        # Distance
         dist = distance()
         print("Distance is %.1f centimeter" % dist)
+
+        # Temperature and humidity
+        humidity, temperature = Adafruit_DHT.read_retry(temp_sensor, temp_pin)
+        if humidity is not None and temperature is not None:
+            print('Temp={0:0.1f}*  Humidity={1:0.1f}%'.format(temperature, humidity))
+        else:
+            print('Failed to get reading. Try again!')
+
+        # Delay between calculations
         time.sleep(0.5)
