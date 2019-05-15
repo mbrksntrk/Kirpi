@@ -2,6 +2,8 @@
 import time
 import Adafruit_DHT
 import RPi.GPIO as GPIO
+import signal
+import sys
 
 GPIO.setmode(GPIO.BCM)
 
@@ -15,9 +17,20 @@ GPIO.setup(DIST_ECHO, GPIO.IN)
 temp_sensor = Adafruit_DHT.DHT11
 temp_pin = 4
 
-# Sound sensor config
-mic_pin = 18
-GPIO.setup(mic_pin, GPIO.IN)
+# Light Sensor
+ldr_pin = 3
+
+
+def light():
+    reading = 0
+    GPIO.setup(ldr_pin, GPIO.OUT)
+    GPIO.output(ldr_pin, GPIO.LOW)
+    time.sleep(.1)
+
+    GPIO.setup(ldr_pin, GPIO.IN)
+    while GPIO.input(ldr_pin) == GPIO.LOW:
+        reading += 1
+    return 2000 / reading
 
 
 def distance():
@@ -26,31 +39,38 @@ def distance():
     time.sleep(0.00001)
     GPIO.output(DIST_TRIGGER, False)
 
-    StartTime = time.time()
-    StopTime = time.time()
+    start_time = time.time()
+    stop_time = time.time()
 
-    # save StartTime
+    # save start_time
     while GPIO.input(DIST_ECHO) == 0:
-        StartTime = time.time()
+        start_time = time.time()
 
     # save time of arrival
     while GPIO.input(DIST_ECHO) == 1:
-        StopTime = time.time()
+        stop_time = time.time()
 
     # calculate elapsed time and
     # multiply with the sonic speed (34300 cm/s)
     # and divide by 2, because there and back
 
-    time_elapsed = StopTime - StartTime
-    distance = (time_elapsed * 34300) / 2
+    time_elapsed = stop_time - start_time
+    return (time_elapsed * 34300) / 2
 
-    return distance
+
+def signal_handler(sig, frame):
+    print('You pressed Ctrl+C! Exiting...')
+    GPIO.cleanup()
+    sys.exit(0)
+
+
+signal.signal(signal.SIGINT, signal_handler)
 
 
 if __name__ == '__main__':
-    while True:
 
-        report = "\nReport:\n"
+    while True:
+        report = "Report:\n"
 
         # Distance
         dist = distance()
@@ -63,12 +83,14 @@ if __name__ == '__main__':
         else:
             report += "Failed to get reading. Try again\n"
 
-        # Sound
-        if GPIO.input(mic_pin):
-            report += "Alarm\n"
-        else:
-            report += "Sakin\n"
+        # Light
+        light_val = light()
+        report += "Light is {}".format(light_val)
 
         print(report)
+
         # Delay between calculations
         time.sleep(1)
+
+
+signal.pause()

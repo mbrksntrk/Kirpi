@@ -3,15 +3,24 @@ _Ozyegin University CS350 Project_ by [mbrksntrk](https://www.github.com/mbrksnt
 
 Simple ATIS system that broadcasts environmental temperature, humidity, proximity and light values via FM Radio. 
 
-###Hardware
-- Raspberry Pi 3 B+
+## Hardware
+- Raspberry Pi 3 Model B+
 - Sensors
-    - Temperature & Humidity Sensor
-    - Proximity Sensor
-    - Light Sensor
+    - Temperature & Humidity Sensor (DHT01)
+    - Proximity Sensor (HC-SR04)
+    - Light Sensor (LDR)
 - Jumper cables & Breadboard
+- Resistors 
 - FM Transmitter
 
-###Software
+## Software
 - Python 3 
 - Raspbian OS
+- [PiFmAdv](https://github.com/miegl/PiFmAdv)
+
+### Libraries
+- [Adafruit_DHT](https://github.com/adafruit/Adafruit_Python_DHT)  Humidity and Temperature Library
+- [RPi.GPIO](https://pypi.org/project/RPi.GPIO/) 
+- [gTTS](https://pypi.org/project/gTTS/) Google Text-To-Speech 
+- [mpg321](http://mpg321.sourceforge.net/) Sound library
+- libsndfile1-dev
