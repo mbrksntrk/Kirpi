@@ -4,6 +4,8 @@ import Adafruit_DHT
 import RPi.GPIO as GPIO
 import signal
 import sys
+from gtts import gTTS
+import os
 
 GPIO.setmode(GPIO.BCM)
 
@@ -74,23 +76,30 @@ if __name__ == '__main__':
 
         # Distance
         dist = distance()
-        report += "Distance is %.1f centimeter \n" % dist
+        report += "Distance: %.1f centimeters. \n" % dist
 
         # Temperature and humidity
         humidity, temperature = Adafruit_DHT.read_retry(temp_sensor, temp_pin)
         if humidity is not None and temperature is not None:
-            report += "Temperature is {0:0.1f}* \nHumidity is {1:0.1f}% \n".format(temperature, humidity)
+            report += "Temperature: {0:0.1f} celsius.  \nHumidity: {1:0.1f}%. \n".format(temperature, humidity)
         else:
             report += "Failed to get reading. Try again\n"
 
         # Light
         light_val = light()
-        report += "Light is {}".format(light_val)
+        report += "Light is: {}.".format(light_val)
 
         print(report)
 
+        tts = gTTS(text=report, lang='en')
+        tts.save("report.mp3")
+        # print("convertion:\n") # DEBUG
+        os.system('mpg321 -w report.wav report.mp3')
+        # print("transmitting:\n") # DEBUG
+        os.system('sudo ./PiFmAdv/src/pi_fm_adv --audio ~/report.wav --freq 87.9 --gpio 20 --ps KIRPI-FM --rt \'M Burak Senturk - OzU CS350\' --pty 31')
+
         # Delay between calculations
-        time.sleep(1)
+        time.sleep(25)
 
 
 signal.pause()

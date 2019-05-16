@@ -1,7 +1,9 @@
 # Kirpi
 _Ozyegin University CS350 Project_ by [mbrksntrk](https://www.github.com/mbrksntrk)
 
-Simple ATIS system that broadcasts environmental temperature, humidity, proximity and light values via FM Radio. 
+Simple ATIS system that broadcasts environmental temperature, humidity, proximity and light values via FM Radio and Telegram Channel. 
+
+![Kipri](https://mburaks.com/kirpi/kirpi.png)
 
 ## Hardware
 - Raspberry Pi 3 Model B+
@@ -11,12 +13,12 @@ Simple ATIS system that broadcasts environmental temperature, humidity, proximit
     - Light Sensor (LDR)
 - Jumper cables & Breadboard
 - Resistors 
-- FM Transmitter
+- FM Receiver
 
 ## Software
 - Python 3 
 - Raspbian OS
-- [PiFmAdv](https://github.com/miegl/PiFmAdv)
+- [PiFmAdv](https://github.com/miegl/PiFmAdv) For FM Transmitting
 
 ### Libraries
 - [Adafruit_DHT](https://github.com/adafruit/Adafruit_Python_DHT)  Humidity and Temperature Library
