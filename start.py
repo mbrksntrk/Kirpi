@@ -97,11 +97,10 @@ if __name__ == '__main__':
         time.sleep(1)
 
         # FM Transmission
-        os.system('sox -t mp3 report.mp3 -t wav - | sudo PiFmAdv/src/pi_fm_adv --freq 77.0 --audio - --gpio 20 --ps '
-                  'KIRPI-FM --rt \'M Burak Senturk - OzU CS350\' --pty 31 --wait 0')
+        os.system('sox -t mp3 report.mp3 -t wav - | sudo PiFmRds/src/pi_fm_rds -audio - -freq 77.0')
+
         # Delay between calculations
         time.sleep(1)
-        os.system('rm report.mp3')
 
 
 signal.pause()
