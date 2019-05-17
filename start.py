@@ -5,9 +5,12 @@ import RPi.GPIO as GPIO
 import signal
 import sys
 from gtts import gTTS
+from ftplib import FTP
 import os
 import config
 import requests
+from datetime import datetime
+import json
 
 GPIO.setmode(GPIO.BCM)
 
@@ -70,28 +73,26 @@ def signal_handler(sig, frame):
 
 signal.signal(signal.SIGINT, signal_handler)
 
-
 if __name__ == '__main__':
 
     while True:
-        report = "Report:\n"
+        humid, temp = Adafruit_DHT.read_retry(temp_sensor, temp_pin)  # Temperature and humidity
 
-        # Distance
-        dist = distance()
-        report += "Distance is: %d centimeter. \n" % dist
+        # Create data array with values from sensors.
+        data = {'date': str(datetime.now()), 'dist': distance(), 'temp': temp, 'humid': humid, 'light': light()}
 
-        # Temperature and humidity
-        humidity, temperature = Adafruit_DHT.read_retry(temp_sensor, temp_pin)
-        if humidity is not None and temperature is not None:
-            report += "Temperature: {0:0.1f} celcius.  \nHumidity: {1:0.1f}%. \n".format(temperature, humidity)
-        else:
-            report += "Failed to get reading. Try agaidn\n"
-
-        # Light
-        light_val = light()
-        report += "Light level: {}.".format(light_val)
-
+        # Report in speaking language
+        report = "Report: \n" \
+                 "Distance is: {0:1.1f} centimeter. \n" \
+                 "Temperature: {1:1.0f} celsius. \n" \
+                 "Humidity: {2:1.0f}%." \
+                 "\nLight level: {3}." \
+            .format(data['dist'], data['temp'], data['humid'], data['light'])
         print(report)
+
+        # Report in JSON format
+        json_data = json.dumps(data)
+        print(json_data)
 
         # Telegram Send Message by API
         requests.post(url='https://api.telegram.org/bot{0}/sendMessage'.format(config.apikey),
@@ -99,8 +100,15 @@ if __name__ == '__main__':
 
         # Write to file
         file = open("report.html", "w")
-        file.write(report)
+        file.write(json_data)
         file.close()
+
+        # Upload to FTP server
+        ftp = FTP(config.ftphost)
+        ftp.login(config.ftpuser, config.ftppass)
+        with open('report.html', 'r') as f:
+            ftp.storbinary('STOR %s' % 'kirpi.html', f)
+        ftp.quit()
 
         # Report Text to Speech (gTTS Online)
         tts = gTTS(text=report, lang='en')
@@ -112,6 +120,5 @@ if __name__ == '__main__':
 
         # Delay between calculations
         time.sleep(1)
-
 
 signal.pause()
