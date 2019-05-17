@@ -27,6 +27,9 @@ temp_pin = 4
 # Light Sensor
 ldr_pin = 3
 
+# FTP Connection
+ftp = FTP(config.ftphost)
+
 
 def light():
     reading = 0
@@ -98,13 +101,12 @@ if __name__ == '__main__':
         requests.post(url='https://api.telegram.org/bot{0}/sendMessage'.format(config.apikey),
                       data={'chat_id': config.chatid, 'text': report}).json()
 
-        # Write to file
+        # Write JSON data to file
         file = open("report.html", "w")
         file.write(json_data)
         file.close()
 
         # Upload to FTP server
-        ftp = FTP(config.ftphost)
         ftp.login(config.ftpuser, config.ftppass)
         with open('report.html', 'r') as f:
             ftp.storbinary('STOR %s' % 'kirpi.html', f)
@@ -113,12 +115,8 @@ if __name__ == '__main__':
         # Report Text to Speech (gTTS Online)
         tts = gTTS(text=report, lang='en')
         tts.save("report.mp3")
-        time.sleep(1)
 
         # FM Transmission
         os.system('sox -t mp3 report.mp3 -t wav - | sudo PiFmRds/src/pi_fm_rds -audio - -freq 77.0 -ps KIRPI-FM')
-
-        # Delay between calculations
-        time.sleep(1)
 
 signal.pause()
