@@ -24,5 +24,4 @@ Simple ATIS system that broadcasts environmental temperature, humidity, proximit
 - [Adafruit_DHT](https://github.com/adafruit/Adafruit_Python_DHT)  Humidity and Temperature Library
 - [RPi.GPIO](https://pypi.org/project/RPi.GPIO/) 
 - [gTTS](https://pypi.org/project/gTTS/) Google Text-To-Speech 
-- [mpg321](http://mpg321.sourceforge.net/) Sound library
-- libsndfile1-dev
+- [Sox](http://sox.sourceforge.net/sox.html) Sound library

@@ -76,30 +76,32 @@ if __name__ == '__main__':
 
         # Distance
         dist = distance()
-        report += "Distance: %.1f centimeters. \n" % dist
+        report += "Distance is: %d centimeter. \n" % dist
 
         # Temperature and humidity
         humidity, temperature = Adafruit_DHT.read_retry(temp_sensor, temp_pin)
         if humidity is not None and temperature is not None:
-            report += "Temperature: {0:0.1f} celsius.  \nHumidity: {1:0.1f}%. \n".format(temperature, humidity)
+            report += "Temperature: {0:0.1f} celcius.  \nHumidity: {1:0.1f}%. \n".format(temperature, humidity)
         else:
-            report += "Failed to get reading. Try again\n"
+            report += "Failed to get reading. Try agaidn\n"
 
         # Light
         light_val = light()
-        report += "Light is: {}.".format(light_val)
+        report += "Light level: {}.".format(light_val)
 
         print(report)
 
+        # Report Text to Speech (gTTS Online)
         tts = gTTS(text=report, lang='en')
         tts.save("report.mp3")
-        # print("convertion:\n") # DEBUG
-        os.system('mpg321 -w report.wav report.mp3')
-        # print("transmitting:\n") # DEBUG
-        os.system('sudo ./PiFmAdv/src/pi_fm_adv --audio ~/report.wav --freq 87.9 --gpio 20 --ps KIRPI-FM --rt \'M Burak Senturk - OzU CS350\' --pty 31')
+        time.sleep(1)
 
+        # FM Transmission
+        os.system('sox -t mp3 report.mp3 -t wav - | sudo PiFmAdv/src/pi_fm_adv --freq 77.0 --audio - --gpio 20 --ps '
+                  'KIRPI-FM --rt \'M Burak Senturk - OzU CS350\' --pty 31 --wait 0')
         # Delay between calculations
-        time.sleep(25)
+        time.sleep(1)
+        os.system('rm report.mp3')
 
 
 signal.pause()
