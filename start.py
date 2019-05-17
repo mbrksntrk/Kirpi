@@ -6,6 +6,8 @@ import signal
 import sys
 from gtts import gTTS
 import os
+import config
+import requests
 
 GPIO.setmode(GPIO.BCM)
 
@@ -91,13 +93,22 @@ if __name__ == '__main__':
 
         print(report)
 
+        # Telegram Send Message by API
+        requests.post(url='https://api.telegram.org/bot{0}/sendMessage'.format(config.apikey),
+                      data={'chat_id': config.chatid, 'text': report}).json()
+
+        # Write to file
+        file = open("report.html", "w")
+        file.write(report)
+        file.close()
+
         # Report Text to Speech (gTTS Online)
         tts = gTTS(text=report, lang='en')
         tts.save("report.mp3")
         time.sleep(1)
 
         # FM Transmission
-        os.system('sox -t mp3 report.mp3 -t wav - | sudo PiFmRds/src/pi_fm_rds -audio - -freq 77.0')
+        os.system('sox -t mp3 report.mp3 -t wav - | sudo PiFmRds/src/pi_fm_rds -audio - -freq 77.0 -ps KIRPI-FM')
 
         # Delay between calculations
         time.sleep(1)
