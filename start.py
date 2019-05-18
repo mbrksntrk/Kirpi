@@ -1,4 +1,5 @@
 # Libraries
+import string
 import time
 import Adafruit_DHT
 import RPi.GPIO as GPIO
@@ -11,6 +12,12 @@ import config
 import requests
 from datetime import datetime
 import json
+
+# DEBUG
+tts_enable = 0
+ftp_enable = 1
+tgm_enable = 1
+delay = 0
 
 GPIO.setmode(GPIO.BCM)
 
@@ -26,9 +33,6 @@ temp_pin = 4
 
 # Light Sensor
 ldr_pin = 3
-
-# FTP Connection
-ftp = FTP(config.ftphost)
 
 
 def light():
@@ -80,16 +84,17 @@ if __name__ == '__main__':
 
     while True:
         humid, temp = Adafruit_DHT.read_retry(temp_sensor, temp_pin)  # Temperature and humidity
+        dist = "{0:1.1f}".format(distance())
 
         # Create data array with values from sensors.
-        data = {'date': str(datetime.now()), 'dist': distance(), 'temp': temp, 'humid': humid, 'light': light()}
+        data = {'date': str(datetime.now()), 'dist': dist, 'temp': temp, 'humid': humid, 'light': light()}
 
         # Report in speaking language
         report = "Report: \n" \
-                 "Distance is: {0:1.1f} centimeter. \n" \
+                 "Distance is: {0} centimeter. \n" \
                  "Temperature: {1:1.0f} celsius. \n" \
-                 "Humidity: {2:1.0f}%." \
-                 "\nLight level: {3}." \
+                 "Humidity: {2:1.0f}%. \n" \
+                 "Light level: {3}." \
             .format(data['dist'], data['temp'], data['humid'], data['light'])
         print(report)
 
@@ -97,26 +102,32 @@ if __name__ == '__main__':
         json_data = json.dumps(data)
         print(json_data)
 
-        # Telegram Send Message by API
-        requests.post(url='https://api.telegram.org/bot{0}/sendMessage'.format(config.apikey),
-                      data={'chat_id': config.chatid, 'text': report}).json()
-
-        # Write JSON data to file
+        # Write report to file
         file = open("report.html", "w")
-        file.write(json_data)
+        file.write(report.replace("\n", "<br>"))
         file.close()
 
-        # Upload to FTP server
-        ftp.login(config.ftpuser, config.ftppass)
-        with open('report.html', 'r') as f:
-            ftp.storbinary('STOR %s' % 'kirpi.html', f)
-        ftp.quit()
+        if tgm_enable == 1:
+            # Telegram Send Message by API
+            requests.post(url='https://api.telegram.org/bot{0}/sendMessage'.format(config.apikey),
+                          data={'chat_id': config.chatid, 'text': report}).json()
 
-        # Report Text to Speech (gTTS Online)
-        tts = gTTS(text=report, lang='en')
-        tts.save("report.mp3")
+        if ftp_enable == 1:
+            # Upload to FTP server
+            ftp = FTP(config.ftphost)
+            ftp.login(config.ftpuser, config.ftppass)
+            with open('report.html', 'r') as f:
+                ftp.storbinary('STOR %s' % 'kirpi.html', f)
+            ftp.quit()
 
-        # FM Transmission
-        os.system('sox -t mp3 report.mp3 -t wav - | sudo PiFmRds/src/pi_fm_rds -audio - -freq 77.0 -ps KIRPI-FM')
+        if tts_enable == 1:
+            # Report Text to Speech (gTTS Online)
+            tts = gTTS(text=report, lang='en')
+            tts.save("report.mp3")
+
+            # FM Transmission
+            os.system('sox -t mp3 report.mp3 -t wav - | sudo PiFmRds/src/pi_fm_rds -audio - -freq 77.0 -ps KIRPI-FM')
+
+        time.sleep(delay)
 
 signal.pause()
