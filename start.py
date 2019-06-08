@@ -14,7 +14,7 @@ from datetime import datetime
 import json
 
 # DEBUG
-tts_enable = 0
+tts_enable = 1
 ftp_enable = 1
 tgm_enable = 1
 delay = 0
