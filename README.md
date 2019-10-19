@@ -3,6 +3,8 @@ _Ozyegin University CS350 Project_ by [mbrksntrk](https://www.github.com/mbrksnt
 
 Simple ATIS system that broadcasts environmental temperature, humidity, proximity and light values via FM Radio and Telegram Channel. 
 
+**NEW! You can check-out the details of project on [Wiki Page](https://github.com/mbrksntrk/Kirpi/wiki) of this repository**
+
 ![Kipri](https://mburaks.com/kirpi/kirpi.png)
 
 ## Hardware
