@@ -4,6 +4,7 @@ _Ozyegin University CS350 Project_ by [mbrksntrk](https://www.github.com/mbrksnt
 [![GitHub license](https://img.shields.io/github/license/mbrksntrk/Kirpi)](https://github.com/mbrksntrk/Kirpi/blob/master/LICENSE)
 ![Website](https://img.shields.io/website?up_message=online&url=https%3A%2F%2Fwww.mburaks.com%2Fkirpi%2Fkirpi.html)
 [![Twitter](https://img.shields.io/twitter/url?style=social&url=https%3A%2F%2Fgithub.com%2Fmbrksntrk%2FKirpi%2F)](https://twitter.com/intent/tweet?text=Wow:&url=https%3A%2F%2Fgithub.com%2Fmbrksntrk%2FKirpi%2F)
+![LastCommit](https://img.shields.io/github/last-commit/mbrksntrk/kirpi.svg)
 
 
 Simple ATIS system that broadcasts environmental temperature, humidity, proximity and light values via FM Radio and Telegram Channel. 
